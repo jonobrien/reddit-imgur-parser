@@ -1,4 +1,8 @@
 *.txt
+*.png
+*.gif
+*.gifv
+*.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
