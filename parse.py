@@ -43,6 +43,8 @@ imgHdr = {
 
 jsonBackup = {}
 imgurUrls = {}
+galleryUrls = {}
+albumUrls = {}
 sess = requests.Session()
 afterParam = '&after='
 beforeTs = None
@@ -76,37 +78,48 @@ while pageCount < 40:
 		
 		# ensure no duplicate links
 		imgurUrls[post['data']['url']] = post['data']['url']
-	print('\n' + str(pageCount) + ' page(s) done')
 	pageCount+=1
 sess.close()
+print(str(pageCount) + ' pages retrieved and stored')
 
 
 print(imgurUrls)
 print()
-print()
-print()
+print('parsing urls\n')
 # move this into the while loop
 for url in imgurUrls.values():
 	urlFixed = url
 	if 'gallery' in url:
-		print('gallery: ' + url)
+		print('ignored gallery: ' + url)
+		galleryUrls[url] = url
 		continue
 	elif '/a/' in url:
-		print('album: ' + url)
+		print('ignored album: ' + url)
+		albumUrls[url] = url
 		# get api list of all images
 		continue
 	else:
-		imageName = url.replace('http://','').replace('https://','').replace('i.imgur.com/','').replace('imgur.com/','')
-		if imageName[-4] == '.' or imageName[-5] == '.': # yay hacky - has extension already, can be downloaded properly
-			pass
+		imageName = url.replace('http://','').replace('https://','').replace('i.imgur.com/','').replace('imgur.com/','').replace('m.imgur.com/','').replace('?','')
+		if '.' in imageName: # yay hacky - has extension already, can be downloaded properly, mostly
+				imageName = imageName[:11]
 		else:
+			imageName = imageName[:7]
 			imageName += '.gif' # static gif is still a png/jpg anyway...safest to guess on type of gif
 			urlFixed += '.gif'
-		#print(imageName)
-		path = os.path.join('./imgurEVE', imageName)
-		f = open(path, 'wb')
-		f.write(request.urlopen(urlFixed).read())
-		f.close()
-	
+		print('retrieved: ' + imageName)
+		try:
+			path = os.path.join('./imgurEVE', imageName)
+			f = open(path, 'wb')
+			f.write(request.urlopen(urlFixed).read())
+			f.close()
+		except Exception:
+			print('\n[!!] exception 404 most likely')
+			print(imageName)
+			print(urlFixed)
+			print()
+
 print('\ndone')
-	
+print('image urls total: ' + str(len(imgurUrls)))
+print('galleries skipped: ' + str(len(galleryUrls)))
+print('albums skipped: ' + str(len(albumUrls)))
+print('individual images saved: ' + str(len(imgurUrls)-len(galleryUrls)-len(albumUrls)))
