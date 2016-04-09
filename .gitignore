@@ -3,6 +3,11 @@
 *.gif
 *.gifv
 *.jpg
+*.web
+# need to fix the name still, cutting off these for some reason
+*.pn
+*m.*
+*.jp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
